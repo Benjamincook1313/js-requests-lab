@@ -2,6 +2,8 @@
 //THE TEST SERVER IS RUNNING ON LOCALHOST:3000//
 ////////////////////////////////////////////////
 
+// const { default: axios } = require("axios")
+
 // PROBLEM 1
 /*
     In the index.html file in this folder there is a button with an id of 'say-hello-button'!
@@ -11,6 +13,7 @@
 
 // CODE HERE
 
+let sayHelloButton = document.getElementById('say-hello-button')
 
 // PROBLEM 2
 /*
@@ -21,6 +24,12 @@
 
 // CODE HERE
 
+function changeColor(){
+    sayHelloButton.style.backgroundColor = 'black'
+    sayHelloButton.style.color = 'white'
+};
+
+sayHelloButton.addEventListener('mouseover', changeColor)
 
 // PROBLEM 3
 /*
@@ -33,6 +42,12 @@
 
 // CODE HERE
 
+function originalColor(){
+    sayHelloButton.style.backgroundColor = '#EFEFEF'
+    sayHelloButton.style.color = 'black'
+}
+
+sayHelloButton.addEventListener('mouseout', originalColor)
 
 // PROBLEM 4
 /*
@@ -54,6 +69,7 @@ const sayHello = () => {
 
 // CODE HERE
 
+sayHelloButton.addEventListener('click', sayHello)
 
 // PROBLEM 5 
 /*
@@ -65,12 +81,23 @@ const sayHello = () => {
     
     Handle the promise that's returned with a .then, which you should pass a callback function to. Inside the callback function, console.log the response's data (in the intermediate instructions we'll come back to this function and add HTML).
 */ 
+let animals = document.getElementById('animals-button')
 
-const ohMy = () => {
-    // YOUR CODE HERE
-}
+const ohMy = async () => {
+    const res = await axios.get('http://localhost:3000/animals')
+    try{
+        console.log(res.data)
+        for(let i=0; i<res.data.length; i++){
+            let newPtag = document.createElement('p')
+            newPtag.textContent = res.data[i]
+            document.querySelector('body').appendChild(newPtag)
+        }
+    }catch(err){
+        console.log({err, 'message': 'Error getting animals'})
+    }
+};
 
-document.getElementById('animals-button').addEventListener('click', ohMy)
+animals.addEventListener('click', ohMy)
 
 
 // PROBLEM 6 
@@ -85,10 +112,19 @@ document.getElementById('animals-button').addEventListener('click', ohMy)
     
     We'll be updating this function in the next problem.
 */
+let repeat = document.getElementById('repeat-button')
 
 const repeatMyParam = () => {
-    //YOUR CODE HERE
-}
+    axios.get(`http://localhost:3000/repeat/thisIsMyString`).then(res => {
+        document.getElementById('repeat-text').textContent = res.data
+        repeat.textContent = res.data
+    }).catch(err => {
+        console.log({err, 'message': 'Error with repeat Param'})
+    })
+
+};
+
+repeat.addEventListener('click', repeatMyParam)
 
 // PROBLEM 7
 /*
@@ -98,7 +134,6 @@ const repeatMyParam = () => {
 */
 
 // Code in the repeatMyParam function above
-
 
 
 // PROBLEM 8
@@ -112,6 +147,14 @@ const repeatMyParam = () => {
 
 // CODE HERE
 
+const queryBtn = document.getElementById('query-button')
+
+async function queryTest(){
+    const res = await axios.get('http://localhost:3000/query-test?greeting=hello/?name=ben')
+    console.log(res.data)
+};
+
+queryBtn.addEventListener('click', queryTest)
 
 
 ////////////////
@@ -132,8 +175,10 @@ const repeatMyParam = () => {
     In the function that you wrote for Problem 8, change the URL to test a couple different scenarios. 
 
     1: Send no queries on the URL -- what happened? 
+        says: you sent an empty query
 
     2: Send more than 1 query on the URL -- what happened? 
+        it just adds it to the string
 */
 
 // Edit code in Problem 8
@@ -164,3 +209,28 @@ const repeatMyParam = () => {
 */
 
 // CODE HERE 
+
+// const addFoodBtn = document.getElementById('add-food-button')
+let foodForm = document.querySelector('form')
+
+let foodInput = document.querySelector('input')
+
+const createFood = (e) => {
+    e.preventDefault()
+
+    let body = {
+        newFood: foodInput.value
+    }
+    axios.post('http://localhost:3000/food', body).then(res => {
+
+        let newFood = document.createElement('p')
+        newFood.textContent = res.data[res.data.length - 1]
+        document.querySelector('body').appendChild(newFood)
+
+        foodInput.value = ''
+    }).catch(err => {
+        console.log({err , 'message': 'Error adding food!'})
+    })
+};
+
+foodForm.addEventListener('submit', createFood)
